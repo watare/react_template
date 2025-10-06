@@ -33,3 +33,4 @@ This is a learning project to understand modern web development with:
 
 ## Current Phase
 Phase 1: React Frontend (standalone with mock data)
+- c'est un projet local pour apprendre on reste en localhost
