@@ -18,7 +18,7 @@ from app.scl_converter import SCLToRDFConverter, RDFToSCLConverter
 from app.rdf.client import rdf_client
 from rdflib import Graph
 
-router = APIRouter(prefix="/api/scl-files", tags=["scl-files"])
+router = APIRouter(prefix="/scl-files", tags=["scl-files"])
 
 # Configuration
 UPLOAD_DIR = Path("/app/uploads/scl")
