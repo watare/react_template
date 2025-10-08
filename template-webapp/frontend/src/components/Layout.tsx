@@ -14,6 +14,9 @@ export default function Layout() {
         <div className="nav-links">
           <Link to="/">Dashboard</Link>
           <Link to="/nodes">Nodes</Link>
+          {(user?.is_superuser || user?.roles?.some((r: any) => r.name === 'admin')) && (
+            <Link to="/scl-files">SCL Files</Link>
+          )}
         </div>
 
         <div className="nav-user">

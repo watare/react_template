@@ -36,6 +36,7 @@ class User(Base):
     # Relationships
     roles = relationship("Role", secondary=user_roles, back_populates="users")
     audit_logs = relationship("AuditLog", back_populates="user")
+    scl_files = relationship("SCLFile", back_populates="uploader")
 
     def has_permission(self, permission_code: str) -> bool:
         """Check if user has a specific permission"""

@@ -63,6 +63,7 @@ services:
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
     volumes:
       - ./backend:/app
+      - scl_uploads:/app/uploads
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     depends_on:
@@ -104,4 +105,6 @@ volumes:
   postgres_data:
     driver: local
   fuseki_data:
+    driver: local
+  scl_uploads:
     driver: local

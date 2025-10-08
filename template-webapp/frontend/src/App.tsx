@@ -3,6 +3,8 @@ import { useAuth } from './contexts/AuthContext'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import NodesPage from './pages/NodesPage'
+import SCLFilesPage from './pages/SCLFilesPage'
+import RDFSchemaPage from './pages/RDFSchemaPage'
 import Layout from './components/Layout'
 
 function App() {
@@ -20,6 +22,8 @@ function App() {
       >
         <Route index element={<DashboardPage />} />
         <Route path="nodes" element={<NodesPage />} />
+        <Route path="scl-files" element={<SCLFilesPage />} />
+        <Route path="scl-files/:fileId/rdf-schema" element={<RDFSchemaPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
