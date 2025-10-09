@@ -1,0 +1,117 @@
+{
+  "CBR": {
+    "name": "Breaker DM1-D",
+    "file": "CBR.svg",
+    "width": 40.0,
+    "height": 130.0,
+    "terminals": [
+      {
+        "x": -11.0,
+        "y": 60.0,
+        "orientation": "s"
+      },
+      {
+        "x": -11.0,
+        "y": -50.0,
+        "orientation": "n"
+      },
+      {
+        "x": -11.0,
+        "y": -50.0,
+        "orientation": "n"
+      }
+    ]
+  },
+  "DIS": {
+    "name": "Ground switch disconnector",
+    "file": "DIS.svg",
+    "width": 20.0,
+    "height": 50.0,
+    "terminals": [
+      {
+        "x": -10.0,
+        "y": -50.0,
+        "orientation": "n"
+      }
+    ]
+  },
+  "CTR": {
+    "name": "Mirror contact NC",
+    "file": "CTR.svg",
+    "width": 30.0,
+    "height": 60.0,
+    "terminals": [
+      {
+        "x": -20.0,
+        "y": -51.0,
+        "orientation": "n"
+      },
+      {
+        "x": -20.0,
+        "y": -11.0,
+        "orientation": "s"
+      }
+    ]
+  },
+  "VTR": {
+    "name": "Ground bar",
+    "file": "VTR.svg",
+    "width": 20.0,
+    "height": 60.0,
+    "terminals": [
+      {
+        "x": -10.0,
+        "y": -51.0,
+        "orientation": "n"
+      },
+      {
+        "x": -10.0,
+        "y": -9.0,
+        "orientation": "s"
+      }
+    ]
+  },
+  "PTR": {
+    "name": "Three-phase autotransducer + neutral",
+    "file": "PTR.svg",
+    "width": 70.0,
+    "height": 90.0,
+    "terminals": [
+      {
+        "x": -25.0,
+        "y": -81.0,
+        "orientation": "n"
+      },
+      {
+        "x": -42.0,
+        "y": -81.0,
+        "orientation": "n"
+      },
+      {
+        "x": -59.0,
+        "y": -81.0,
+        "orientation": "n"
+      },
+      {
+        "x": -59.0,
+        "y": -9.0,
+        "orientation": "s"
+      },
+      {
+        "x": -42.0,
+        "y": -9.0,
+        "orientation": "s"
+      },
+      {
+        "x": -25.0,
+        "y": -9.0,
+        "orientation": "s"
+      },
+      {
+        "x": -76.0,
+        "y": -9.0,
+        "orientation": "s"
+      }
+    ]
+  }
+}

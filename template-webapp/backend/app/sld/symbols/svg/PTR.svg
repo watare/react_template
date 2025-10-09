@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+                     width="70.0"
+                     height="90.0"
+                     viewBox="-42.0 -45.0 70.0 90.0">
+    <polyline points="-13,13 -25,13 -34,22 -34,35" stroke="black" stroke-width="1" fill="none"/>
+<!-- arc: x=-15.0 y=-20.0 start=70.0 span=110.0 -->
+<ellipse cx="0.0" cy="5.0" rx="15.0" ry="15.0" stroke="black" stroke-width="1" fill="none"/>
+<polyline points="11,16 17,30 17,35" stroke="black" stroke-width="1" fill="none"/>
+<polyline points="-11,16 -17,30 -17,35" stroke="black" stroke-width="1" fill="none"/>
+<polyline points="-11,-9 -17,-30 -17,-35" stroke="black" stroke-width="1" fill="none"/>
+<polyline points="11,-20 17,-30 17,-35" stroke="black" stroke-width="1" fill="none"/>
+<line x1="0" y1="20" x2="0" y2="35" stroke="black" stroke-width="1" fill="none"/>
+<line x1="0" y1="-35" x2="0" y2="-18" stroke="black" stroke-width="1" fill="none"/>
+</svg>
