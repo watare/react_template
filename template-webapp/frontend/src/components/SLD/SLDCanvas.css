@@ -1,0 +1,42 @@
+/* SLD Canvas Container */
+.sld-canvas-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #ffffff;
+
+  /* Grid background like draw.io */
+  background-image:
+    linear-gradient(rgba(200, 200, 200, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200, 200, 200, 0.3) 1px, transparent 1px),
+    linear-gradient(rgba(200, 200, 200, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200, 200, 200, 0.1) 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
+
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  position: relative;
+  user-select: none;
+}
+
+/* Equipment hover effects */
+.sld-equipment:hover {
+  filter: brightness(1.1);
+}
+
+/* Busbar hover effects */
+.sld-busbar:hover line {
+  stroke-width: 5;
+}
+
+/* Bay grouping */
+.sld-bay {
+  transition: opacity 0.2s ease;
+}
+
+/* Voltage level grouping */
+.sld-voltage-level {
+  transition: opacity 0.2s ease;
+}
