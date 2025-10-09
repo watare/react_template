@@ -1,0 +1,166 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix iec: <http://iec.ch/TC57/2013/CIM-schema-cim16#> .
+@prefix cim: <http://iec.ch/TC57/CIM100#> .
+@prefix dl: <http://vpac.energy/ontology/diagram-layout#> .
+@prefix ex: <http://example.com/substation#> .
+
+# ===================================================================
+# Example: Single Line Diagram with Persisted Positions
+# ===================================================================
+# Scenario: 225kV Voltage Level with 3 Bays (2 feeders + 1 coupling)
+# Equipment positions are stored and can be modified via drag-and-drop
+# ===================================================================
+
+# ===================================================================
+# 1. Diagram (Canvas)
+# ===================================================================
+
+ex:Diagram_Substation_POSTE1 a dl:Diagram ;
+    dl:diagramName "POSTE1 Single Line Diagram" ;
+    dl:orientation "vertical" ;
+    cim:IdentifiedObject.name "POSTE1_SLD" .
+
+# ===================================================================
+# 2. Voltage Level Position (Busbar horizontal position)
+# ===================================================================
+
+ex:DiagramObject_VL_225kV a dl:DiagramObject ;
+    dl:diagram ex:Diagram_Substation_POSTE1 ;
+    dl:identifiedObject ex:VoltageLevel_225kV ;  # Link to IEC 61850 VoltageLevel
+    dl:voltageLevelIndex 0 ;  # First voltage level (top)
+    dl:diagramObjectPoints ex:Point_VL_225kV_Busbar .
+
+ex:Point_VL_225kV_Busbar a dl:DiagramObjectPoint ;
+    dl:xPosition "100.0"^^xsd:float ;  # Busbar starts at x=100
+    dl:yPosition "150.0"^^xsd:float ;  # Busbar at y=150
+    dl:sequenceNumber 0 .
+
+# ===================================================================
+# 3. Bay #1: Feeder "DEPART_LIGNE_1" (Left side)
+# ===================================================================
+
+ex:DiagramObject_Bay_DEPART_LIGNE_1 a dl:DiagramObject ;
+    dl:diagram ex:Diagram_Substation_POSTE1 ;
+    dl:identifiedObject ex:Bay_DEPART_LIGNE_1 ;  # Link to IEC 61850 Bay
+    dl:bayIndex 0 ;  # First bay (leftmost)
+    dl:diagramObjectPoints ex:Point_Bay_DEPART_LIGNE_1 .
+
+ex:Point_Bay_DEPART_LIGNE_1 a dl:DiagramObjectPoint ;
+    dl:xPosition "150.0"^^xsd:float ;  # X position of bay center
+    dl:yPosition "150.0"^^xsd:float ;  # Y position (same as busbar)
+    dl:sequenceNumber 0 .
+
+# Equipment in Bay #1: Circuit Breaker (Disjoncteur)
+ex:DiagramObject_CBR_DJ1 a dl:DiagramObject ;
+    dl:diagram ex:Diagram_Substation_POSTE1 ;
+    dl:identifiedObject ex:CBR_DJ1 ;  # Link to IEC 61850 ConductingEquipment
+    dl:rotation "0.0"^^xsd:float ;  # No rotation
+    dl:drawingOrder 10 ;  # Z-index
+    dl:diagramObjectPoints (
+        ex:Point_CBR_DJ1_1
+        ex:Point_CBR_DJ1_2
+    ) .
+
+ex:Point_CBR_DJ1_1 a dl:DiagramObjectPoint ;
+    dl:xPosition "150.0"^^xsd:float ;  # Center X of CBR
+    dl:yPosition "250.0"^^xsd:float ;  # Y position below busbar
+    dl:sequenceNumber 0 .
+
+ex:Point_CBR_DJ1_2 a dl:DiagramObjectPoint ;
+    dl:xPosition "150.0"^^xsd:float ;
+    dl:yPosition "310.0"^^xsd:float ;  # Bottom terminal
+    dl:sequenceNumber 1 .
+
+# Equipment in Bay #1: Disconnector (Sectionneur SA)
+ex:DiagramObject_DIS_SA1 a dl:DiagramObject ;
+    dl:diagram ex:Diagram_Substation_POSTE1 ;
+    dl:identifiedObject ex:DIS_SA1 ;
+    dl:rotation "0.0"^^xsd:float ;
+    dl:drawingOrder 9 ;
+    dl:diagramObjectPoints ex:Point_DIS_SA1 .
+
+ex:Point_DIS_SA1 a dl:DiagramObjectPoint ;
+    dl:xPosition "150.0"^^xsd:float ;
+    dl:yPosition "200.0"^^xsd:float ;  # Between busbar and CBR
+    dl:sequenceNumber 0 .
+
+# Equipment in Bay #1: Current Transformer (TC)
+ex:DiagramObject_CTR_TC1 a dl:DiagramObject ;
+    dl:diagram ex:Diagram_Substation_POSTE1 ;
+    dl:identifiedObject ex:CTR_TC1 ;
+    dl:rotation "0.0"^^xsd:float ;
+    dl:drawingOrder 8 ;
+    dl:diagramObjectPoints ex:Point_CTR_TC1 .
+
+ex:Point_CTR_TC1 a dl:DiagramObjectPoint ;
+    dl:xPosition "150.0"^^xsd:float ;
+    dl:yPosition "350.0"^^xsd:float ;  # Below CBR
+    dl:sequenceNumber 0 .
+
+# ===================================================================
+# 4. Bay #2: Feeder "DEPART_LIGNE_2" (Center)
+# ===================================================================
+
+ex:DiagramObject_Bay_DEPART_LIGNE_2 a dl:DiagramObject ;
+    dl:diagram ex:Diagram_Substation_POSTE1 ;
+    dl:identifiedObject ex:Bay_DEPART_LIGNE_2 ;
+    dl:bayIndex 1 ;  # Second bay (center)
+    dl:diagramObjectPoints ex:Point_Bay_DEPART_LIGNE_2 .
+
+ex:Point_Bay_DEPART_LIGNE_2 a dl:DiagramObjectPoint ;
+    dl:xPosition "300.0"^^xsd:float ;  # 150px spacing from Bay #1
+    dl:yPosition "150.0"^^xsd:float ;
+    dl:sequenceNumber 0 .
+
+# Equipment in Bay #2: Circuit Breaker
+ex:DiagramObject_CBR_DJ2 a dl:DiagramObject ;
+    dl:diagram ex:Diagram_Substation_POSTE1 ;
+    dl:identifiedObject ex:CBR_DJ2 ;
+    dl:rotation "0.0"^^xsd:float ;
+    dl:drawingOrder 10 ;
+    dl:diagramObjectPoints ex:Point_CBR_DJ2 .
+
+ex:Point_CBR_DJ2 a dl:DiagramObjectPoint ;
+    dl:xPosition "300.0"^^xsd:float ;
+    dl:yPosition "250.0"^^xsd:float ;
+    dl:sequenceNumber 0 .
+
+# ===================================================================
+# 5. Bay #3: Coupling Busbar (CBO) - Right side
+# ===================================================================
+
+ex:DiagramObject_Bay_CBO a dl:DiagramObject ;
+    dl:diagram ex:Diagram_Substation_POSTE1 ;
+    dl:identifiedObject ex:Bay_CBO ;
+    dl:bayIndex 2 ;  # Third bay (rightmost)
+    dl:diagramObjectPoints ex:Point_Bay_CBO .
+
+ex:Point_Bay_CBO a dl:DiagramObjectPoint ;
+    dl:xPosition "450.0"^^xsd:float ;
+    dl:yPosition "150.0"^^xsd:float ;
+    dl:sequenceNumber 0 .
+
+# Equipment in Bay #3: Coupling Circuit Breaker
+ex:DiagramObject_CBR_CBO a dl:DiagramObject ;
+    dl:diagram ex:Diagram_Substation_POSTE1 ;
+    dl:identifiedObject ex:CBR_CBO ;
+    dl:rotation "0.0"^^xsd:float ;
+    dl:drawingOrder 10 ;
+    dl:diagramObjectPoints ex:Point_CBR_CBO .
+
+ex:Point_CBR_CBO a dl:DiagramObjectPoint ;
+    dl:xPosition "450.0"^^xsd:float ;
+    dl:yPosition "250.0"^^xsd:float ;
+    dl:sequenceNumber 0 .
+
+# ===================================================================
+# Notes:
+# ===================================================================
+# - All positions are in pixels or logical units (frontend decides)
+# - When user drags an equipment, frontend sends SPARQL UPDATE to modify xPosition/yPosition
+# - sequenceNumber defines order of points for polylines (connections between equipment)
+# - rotation allows rotating symbols (0 = vertical, 90 = horizontal)
+# - drawingOrder (Z-index) controls which object appears on top
+# - bayIndex and voltageLevelIndex provide semantic layout information
+# ===================================================================

@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     postgresql-client \
     curl \
+    graphviz \
+    graphviz-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements

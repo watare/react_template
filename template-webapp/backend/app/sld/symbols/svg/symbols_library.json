@@ -4,6 +4,7 @@
     "file": "CBR.svg",
     "width": 40.0,
     "height": 130.0,
+    "viewBox": {"x": -21.0, "y": -30.0, "width": 40.0, "height": 130.0},
     "terminals": [
       {
         "x": -11.0,
@@ -27,6 +28,7 @@
     "file": "DIS.svg",
     "width": 20.0,
     "height": 50.0,
+    "viewBox": {"x": -10.0, "y": -30.0, "width": 20.0, "height": 50.0},
     "terminals": [
       {
         "x": -10.0,
@@ -40,6 +42,7 @@
     "file": "CTR.svg",
     "width": 30.0,
     "height": 60.0,
+    "viewBox": {"x": -20.0, "y": -31.0, "width": 30.0, "height": 60.0},
     "terminals": [
       {
         "x": -20.0,
@@ -58,6 +61,7 @@
     "file": "VTR.svg",
     "width": 20.0,
     "height": 60.0,
+    "viewBox": {"x": -10.0, "y": -30.0, "width": 20.0, "height": 60.0},
     "terminals": [
       {
         "x": -10.0,
@@ -76,6 +80,7 @@
     "file": "PTR.svg",
     "width": 70.0,
     "height": 90.0,
+    "viewBox": {"x": -42.0, "y": -45.0, "width": 70.0, "height": 90.0},
     "terminals": [
       {
         "x": -25.0,

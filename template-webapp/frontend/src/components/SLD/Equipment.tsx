@@ -12,9 +12,11 @@
  * - GEN: Generator
  * - BAT: Battery
  * - MOT: Motor
+ *
+ * Uses QElectroTech professional IEC 61850 symbols from backend
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface EquipmentProps {
   name: string;
@@ -55,14 +57,49 @@ export const Equipment: React.FC<EquipmentProps> = ({
   selected = false,
   highlighted = false,
   width = 40,
-  height = 30
+  height = 60
 }) => {
+  const [symbolSvg, setSymbolSvg] = useState<string | null>(null);
+  const [symbolError, setSymbolError] = useState<boolean>(false);
+
   const color = EQUIPMENT_COLORS[type] || EQUIPMENT_COLORS['DEFAULT'];
   const strokeColor = selected ? '#1976d2' : '#000';
   const strokeWidth = selected ? 3 : 2;
 
-  // Render different symbols based on equipment type
-  const renderSymbol = () => {
+  // Load QElectroTech symbol from backend
+  useEffect(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const symbolUrl = `${apiUrl}/api/sld/symbols/${type}`;
+
+    fetch(symbolUrl, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Symbol ${type} not found`);
+        }
+        return response.text();
+      })
+      .then(svgText => {
+        // Remove the outer <svg> tag to get only the inner content
+        // This allows the symbol to use the parent coordinate system
+        const innerContent = svgText
+          .replace(/<svg[^>]*>/, '')  // Remove opening <svg> tag
+          .replace(/<\/svg>/, '');     // Remove closing </svg> tag
+
+        setSymbolSvg(innerContent);
+        setSymbolError(false);
+      })
+      .catch(err => {
+        console.warn(`Failed to load symbol ${type}:`, err);
+        setSymbolError(true);
+      });
+  }, [type]);
+
+  // Fallback: Render basic symbol if QElectroTech symbol fails to load
+  const renderFallbackSymbol = () => {
     switch (type) {
       case 'CBR': // Circuit Breaker - Rectangle with diagonal line
         return (
@@ -131,8 +168,14 @@ export const Equipment: React.FC<EquipmentProps> = ({
         />
       )}
 
-      {/* Equipment symbol */}
-      {renderSymbol()}
+      {/* Equipment symbol - QElectroTech or fallback */}
+      {symbolSvg && !symbolError ? (
+        // Use QElectroTech symbol (embedded SVG)
+        <g dangerouslySetInnerHTML={{ __html: symbolSvg }} />
+      ) : (
+        // Fallback to basic symbol
+        renderFallbackSymbol()
+      )}
 
       {/* Tooltip */}
       <title>{`${type}${subtype ? `-${subtype}` : ''}: ${name}`}</title>

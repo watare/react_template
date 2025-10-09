@@ -19,6 +19,7 @@ Total : ~7% du fichier original
 
 # Liste des types d'équipements visibles sur un SLD
 SLD_PRIMARY_EQUIPMENT_TYPES = [
+    "BUSBAR",  # Busbar / Jeu De Barres (peut être explicite dans certains fichiers)
     "CBR",  # Circuit Breaker (Disjoncteur)
     "DIS",  # Disconnector (Sectionneur)
     "CTR",  # Current Transformer (TC)
@@ -153,12 +154,7 @@ def get_connectivity_query() -> str:
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
     SELECT DISTINCT
-        ?equipment ?equipmentName ?equipmentType
-        ?terminal ?terminalName ?terminalCNodeName
-        ?connectivityNode ?connectivityNodePathName
-        ?bay ?bayName
-        ?voltageLevel ?voltageLevelName
-        ?substation ?substationName
+        ?equipment ?equipmentName ?terminalName ?terminalCNodeName
     WHERE {{
         # Equipment primaire uniquement
         ?equipment rdf:type iec:ConductingEquipment ;
@@ -172,22 +168,8 @@ def get_connectivity_query() -> str:
         ?equipment iec:hasTerminal ?terminal .
         ?terminal iec:name ?terminalName ;
                  iec:connectivityNode ?terminalCNodeName .
-
-        # ConnectivityNode
-        ?connectivityNode iec:name ?terminalCNodeName ;
-                         iec:pathName ?connectivityNodePathName .
-
-        # Remonter la hiérarchie pour le contexte
-        ?bay iec:hasConductingEquipment ?equipment ;
-            iec:name ?bayName .
-
-        ?voltageLevel iec:hasBay ?bay ;
-                     iec:name ?voltageLevelName .
-
-        ?substation iec:hasVoltageLevel ?voltageLevel ;
-                   iec:name ?substationName .
     }}
-    ORDER BY ?substationName ?voltageLevelName ?bayName ?equipmentName ?terminalName
+    ORDER BY ?equipmentName ?terminalName
     """
 
 
@@ -315,12 +297,10 @@ def get_transformer_bays_query() -> str:
 # Requête combinée ultra-optimisée (tout en une seule requête)
 def get_sld_complete_query() -> str:
     """
-    Requête SPARQL COMBINÉE pour extraire toutes les données SLD en une seule fois
+    Requête SPARQL SIMPLE pour extraire TOUS les équipements primaires
 
-    Cette requête est ultra-optimisée : une seule exécution pour tout récupérer.
-    Plus efficace que d'exécuter plusieurs requêtes séparées.
-
-    Utilise OPTIONAL pour éviter de perdre des données si certaines parties manquent.
+    Version ultra-simplifiée: on récupère juste les équipements avec leur hiérarchie.
+    Les OPTIONAL sont groupés pour éviter les produits cartésiens.
     """
     types_filter = '", "'.join(SLD_PRIMARY_EQUIPMENT_TYPES)
 
@@ -330,75 +310,39 @@ def get_sld_complete_query() -> str:
     PREFIX private: <http://iec61850.com/private#>
 
     SELECT DISTINCT
-        # Hiérarchie
-        ?substation ?substationName
-        ?voltageLevel ?voltageLevelName ?nomFreq ?voltage
-        ?bay ?bayName ?bayDesc
-
-        # Equipment primaire
-        ?equipment ?equipmentName ?equipmentType ?equipmentDesc ?equipmentSubtype ?equipmentOrder
-
-        # Connectivité
-        ?terminal ?terminalName ?terminalCNodeName
-        ?connectivityNode ?connectivityNodePathName
+        ?equipment ?equipmentName ?equipmentType
+        ?substationName ?voltageLevelName ?bayName
+        ?equipmentSubtype ?equipmentOrder
 
     WHERE {{
-        # 1. Substation (racine)
-        ?substation rdf:type iec:Substation ;
-                   iec:name ?substationName .
+        # Equipment primaire (point de départ)
+        ?equipment rdf:type iec:ConductingEquipment ;
+                  iec:name ?equipmentName ;
+                  iec:type ?equipmentType .
 
-        # 2. VoltageLevel
-        ?substation iec:hasVoltageLevel ?voltageLevel .
-        ?voltageLevel rdf:type iec:VoltageLevel ;
-                     iec:name ?voltageLevelName .
+        # FILTER : uniquement équipements primaires
+        FILTER(?equipmentType IN ("{types_filter}"))
 
-        OPTIONAL {{ ?voltageLevel iec:nomFreq ?nomFreq }}
-        OPTIONAL {{
-            ?voltageLevel iec:voltage ?voltageNode .
-            ?voltageNode iec:value ?voltage
-        }}
-
-        # 3. Bay
-        ?voltageLevel iec:hasBay ?bay .
-        ?bay rdf:type iec:Bay ;
+        # Hiérarchie (Bay → VoltageLevel → Substation)
+        ?bay iec:hasConductingEquipment ?equipment ;
             iec:name ?bayName .
 
-        OPTIONAL {{ ?bay iec:desc ?bayDesc }}
+        ?voltageLevel iec:hasBay ?bay ;
+                     iec:name ?voltageLevelName .
 
-        # 4. Equipment primaire (OPTIONAL pour inclure aussi les Bays vides)
+        ?substation iec:hasVoltageLevel ?voltageLevel ;
+                   iec:name ?substationName .
+
+        # Attributs optionnels (groupés)
+        OPTIONAL {{ ?equipment iec:order ?equipmentOrder }}
         OPTIONAL {{
-            ?bay iec:hasConductingEquipment ?equipment .
-
-            ?equipment rdf:type iec:ConductingEquipment ;
-                      iec:name ?equipmentName ;
-                      iec:type ?equipmentType .
-
-            # FILTER : uniquement équipements primaires
-            FILTER(?equipmentType IN ("{types_filter}"))
-
-            OPTIONAL {{ ?equipment iec:desc ?equipmentDesc }}
-            OPTIONAL {{ ?equipment iec:order ?equipmentOrder }}
-
-            # Sous-type RTE (pour sectionneurs)
-            OPTIONAL {{
-                ?equipment private:hasPrivate ?private .
-                ?private private:type "RTE-ConductingEquipmentType" ;
-                        private:xmlContent ?subtypeContent .
-                BIND(REPLACE(?subtypeContent, ".*>([A-Z]{{2}})</.*", "$1") AS ?equipmentSubtype)
-            }}
-
-            # 5. Connectivité (OPTIONAL pour équipements sans terminals)
-            OPTIONAL {{
-                ?equipment iec:hasTerminal ?terminal .
-                ?terminal iec:name ?terminalName ;
-                         iec:connectivityNode ?terminalCNodeName .
-
-                ?connectivityNode iec:name ?terminalCNodeName ;
-                                 iec:pathName ?connectivityNodePathName .
-            }}
+            ?equipment private:hasPrivate ?private .
+            ?private private:type "RTE-ConductingEquipmentType" ;
+                    private:xmlContent ?subtypeContent .
+            BIND(REPLACE(?subtypeContent, ".*>([A-Z]{{2}})</.*", "$1") AS ?equipmentSubtype)
         }}
     }}
-    ORDER BY ?substationName ?voltageLevelName ?bayName ?equipmentOrder ?equipmentName ?terminalName
+    ORDER BY ?substationName ?voltageLevelName ?bayName ?equipmentOrder ?equipmentName
     """
 
 

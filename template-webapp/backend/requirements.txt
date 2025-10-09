@@ -19,6 +19,9 @@ requests==2.31.0
 rdflib==7.0.0
 lxml==5.1.0
 
+# Graph layout (using dot executable directly, not PyGraphviz)
+networkx==3.2.1
+
 # Validation
 pydantic==2.5.0
 pydantic-settings==2.1.0
