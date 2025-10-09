@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api import auth, nodes, scl_files, ieds
+from app.api import auth, nodes, scl_files, ieds, sld
 import logging
 
 # Configure logging
@@ -30,6 +30,7 @@ app.include_router(auth.router, prefix=settings.API_PREFIX)
 app.include_router(nodes.router, prefix=settings.API_PREFIX)
 app.include_router(scl_files.router, prefix=settings.API_PREFIX)
 app.include_router(ieds.router, prefix=settings.API_PREFIX)
+app.include_router(sld.router, prefix=settings.API_PREFIX)
 
 
 @app.get("/")

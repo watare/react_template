@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { IEDMasterPanel } from '../components/ied-explorer/IEDMasterPanel';
 import { IEDDetailPanel } from '../components/ied-explorer/IEDDetailPanel';
 import './IEDExplorerPage.css';
@@ -14,6 +14,7 @@ interface IED {
 
 export default function IEDExplorerPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const fileId = searchParams.get('file_id');
 
   const [groupBy, setGroupBy] = useState<'type' | 'bay'>('type');
@@ -36,8 +37,28 @@ export default function IEDExplorerPage() {
   return (
     <div className="ied-explorer-page">
       <div className="page-header">
-        <h1>IED Explorer</h1>
-        <p className="subtitle">Navigate IEC 61850 Intelligent Electronic Devices</p>
+        <div>
+          <h1>IED Explorer</h1>
+          <p className="subtitle">Navigate IEC 61850 Intelligent Electronic Devices</p>
+        </div>
+        <button
+          onClick={() => navigate(`/sld-viewer?file_id=${fileId}`)}
+          style={{
+            padding: '0.75rem 1.5rem',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            fontSize: '0.95rem',
+            cursor: 'pointer',
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}
+        >
+          📊 View Single Line Diagram
+        </button>
       </div>
 
       <div className="explorer-controls">

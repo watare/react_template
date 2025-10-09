@@ -215,25 +215,46 @@ export default function DashboardPage() {
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                   {file.status === 'validated' && (
-                    <button
-                      className="explore-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/ied-explorer?file_id=${file.id}`);
-                      }}
-                      style={{
-                        padding: '0.4rem 0.8rem',
-                        backgroundColor: '#2196F3',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem',
-                        cursor: 'pointer',
-                        fontWeight: 500
-                      }}
-                    >
-                      🔍 Explore IEDs
-                    </button>
+                    <>
+                      <button
+                        className="explore-button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/ied-explorer?file_id=${file.id}`);
+                        }}
+                        style={{
+                          padding: '0.4rem 0.8rem',
+                          backgroundColor: '#2196F3',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          fontSize: '0.75rem',
+                          cursor: 'pointer',
+                          fontWeight: 500
+                        }}
+                      >
+                        🔍 Explore IEDs
+                      </button>
+                      <button
+                        className="sld-button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/sld-viewer?file_id=${file.id}`);
+                        }}
+                        style={{
+                          padding: '0.4rem 0.8rem',
+                          backgroundColor: '#4CAF50',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          fontSize: '0.75rem',
+                          cursor: 'pointer',
+                          fontWeight: 500
+                        }}
+                      >
+                        📊 View SLD
+                      </button>
+                    </>
                   )}
                   <span
                     className={getStatusColor(file.status)}
