@@ -42,8 +42,8 @@ def build_ied_list_query(group_by: str, search: str = "") -> str:
     return query
 
 
-def build_ied_by_bay_query(search: str = "") -> str:
-    """Build SPARQL query to get IEDs grouped by Bay"""
+def build_ied_hierarchy_query(search: str = "") -> str:
+    """Build SPARQL query to get full electrical hierarchy: Substation > VoltageLevel > Bay > IEDs"""
 
     search_filter = ""
     if search:
@@ -53,25 +53,55 @@ def build_ied_by_bay_query(search: str = "") -> str:
     PREFIX iec: <http://iec61850.com/SCL#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-    SELECT DISTINCT ?ied ?iedName ?type ?manufacturer ?bay ?bayName
+    SELECT DISTINCT
+      ?substation ?substationName
+      ?voltageLevel ?voltageLevelName ?voltage ?voltageUnit ?voltageMultiplier
+      ?bay ?bayName ?bayDesc
+      ?ied ?iedName ?iedType ?iedManufacturer ?iedDesc
     WHERE {{
-      ?ied rdf:type iec:IED .
-      ?ied iec:name ?iedName .
-      OPTIONAL {{ ?ied iec:type ?type }}
-      OPTIONAL {{ ?ied iec:manufacturer ?manufacturer }}
+      # Start from Substation
+      ?scl rdf:type iec:SCL .
+      ?scl iec:hasSubstation ?substation .
+      ?substation rdf:type iec:Substation .
+      OPTIONAL {{ ?substation iec:name ?substationName }}
 
-      # Try to find associated bay through LNode references
+      # Get VoltageLevel
+      ?substation iec:hasVoltageLevel ?voltageLevel .
+      ?voltageLevel rdf:type iec:VoltageLevel .
+      OPTIONAL {{ ?voltageLevel iec:name ?voltageLevelName }}
+
+      # Get Voltage info
       OPTIONAL {{
+        ?voltageLevel iec:hasVoltage ?voltageNode .
+        OPTIONAL {{ ?voltageNode iec:textContent ?voltage }}
+        OPTIONAL {{ ?voltageNode iec:unit ?voltageUnit }}
+        OPTIONAL {{ ?voltageNode iec:multiplier ?voltageMultiplier }}
+      }}
+
+      # Get Bay
+      ?voltageLevel iec:hasBay ?bay .
+      ?bay rdf:type iec:Bay .
+      OPTIONAL {{ ?bay iec:name ?bayName }}
+      OPTIONAL {{ ?bay iec:desc ?bayDesc }}
+
+      # Get IEDs via LNode references
+      OPTIONAL {{
+        ?bay iec:hasFunction ?function .
+        ?function iec:hasLNode ?lNode .
         ?lNode iec:iedName ?iedName .
-        ?bay iec:hasLNode ?lNode .
-        ?bay rdf:type iec:Bay .
-        OPTIONAL {{ ?bay iec:name ?bayName }}
+
+        # Match with actual IED
+        ?ied rdf:type iec:IED .
+        ?ied iec:name ?iedName .
+        OPTIONAL {{ ?ied iec:type ?iedType }}
+        OPTIONAL {{ ?ied iec:manufacturer ?iedManufacturer }}
+        OPTIONAL {{ ?ied iec:desc ?iedDesc }}
       }}
 
       {search_filter}
     }}
-    ORDER BY ?bayName ?iedName
-    LIMIT 1000
+    ORDER BY ?substationName ?voltageLevelName ?bayName ?iedName
+    LIMIT 2000
     """
 
     return query
@@ -105,6 +135,73 @@ def group_ieds_by_field(results: List[Dict], field: str) -> Dict[str, List[Dict]
     return grouped
 
 
+def build_hierarchy_structure(results: List[Dict]) -> Dict:
+    """Build hierarchical structure from SPARQL results: Substation > VoltageLevel > Bay > IEDs"""
+    hierarchy = {}
+
+    for binding in results:
+        # Extract all values
+        substation_name = extract_binding_value(binding.get("substationName")) or "Unknown Substation"
+
+        voltage_level_name = extract_binding_value(binding.get("voltageLevelName")) or "Unknown Level"
+        voltage = extract_binding_value(binding.get("voltage"))
+        voltage_unit = extract_binding_value(binding.get("voltageUnit"))
+        voltage_multiplier = extract_binding_value(binding.get("voltageMultiplier"))
+
+        bay_name = extract_binding_value(binding.get("bayName")) or "Unknown Bay"
+        bay_desc = extract_binding_value(binding.get("bayDesc"))
+
+        ied_name = extract_binding_value(binding.get("iedName"))
+
+        # Build voltage level display name
+        vl_display = voltage_level_name
+        if voltage:
+            # Check if it's the station level (0kV)
+            if voltage == "0":
+                vl_display += " (Station Level)"
+            else:
+                vl_display += f" ({voltage}"
+                if voltage_multiplier:
+                    vl_display += voltage_multiplier
+                if voltage_unit:
+                    vl_display += voltage_unit
+                vl_display += ")"
+        elif voltage_level_name == "0":
+            # No voltage info but name is "0"
+            vl_display = "0 (Station Level)"
+
+        # Build bay display name
+        bay_display = bay_name
+        if bay_desc:
+            bay_display += f" - {bay_desc}"
+
+        # Initialize hierarchy levels
+        if substation_name not in hierarchy:
+            hierarchy[substation_name] = {}
+
+        if vl_display not in hierarchy[substation_name]:
+            hierarchy[substation_name][vl_display] = {}
+
+        if bay_display not in hierarchy[substation_name][vl_display]:
+            hierarchy[substation_name][vl_display][bay_display] = []
+
+        # Add IED if present
+        if ied_name:
+            ied_data = {
+                "uri": extract_binding_value(binding.get("ied")),
+                "name": ied_name,
+                "type": extract_binding_value(binding.get("iedType")),
+                "manufacturer": extract_binding_value(binding.get("iedManufacturer")),
+                "description": extract_binding_value(binding.get("iedDesc"))
+            }
+
+            # Avoid duplicates
+            if not any(ied["name"] == ied_name for ied in hierarchy[substation_name][vl_display][bay_display]):
+                hierarchy[substation_name][vl_display][bay_display].append(ied_data)
+
+    return hierarchy
+
+
 @router.get("/ieds")
 async def get_ieds(
     file_id: int,
@@ -117,7 +214,7 @@ async def get_ieds(
 
     Args:
         file_id: SCL file ID
-        group_by: Group by 'type' or 'bay'
+        group_by: Group by 'type' or 'bay' (bay = electrical hierarchy)
         search: Optional search filter
     """
     # Get SCL file
@@ -133,20 +230,35 @@ async def get_ieds(
 
     try:
         if group_by == "bay":
-            query = build_ied_by_bay_query(search)
+            # Return hierarchical structure: Substation > VoltageLevel > Bay > IEDs
+            query = build_ied_hierarchy_query(search)
             results = rdf_client.query(scl_file.fuseki_dataset, query)
-            grouped = group_ieds_by_field(results, "bayName")
+            hierarchy = build_hierarchy_structure(results)
+
+            # Count total IEDs
+            total_ieds = 0
+            for substation in hierarchy.values():
+                for voltage_level in substation.values():
+                    for bay_ieds in voltage_level.values():
+                        total_ieds += len(bay_ieds)
+
+            return {
+                "group_by": group_by,
+                "search": search,
+                "hierarchy": hierarchy,
+                "total_ieds": total_ieds
+            }
         else:  # group by type
             query = build_ied_list_query(group_by, search)
             results = rdf_client.query(scl_file.fuseki_dataset, query)
             grouped = group_ieds_by_field(results, "type")
 
-        return {
-            "group_by": group_by,
-            "search": search,
-            "groups": grouped,
-            "total_ieds": len(results)
-        }
+            return {
+                "group_by": group_by,
+                "search": search,
+                "groups": grouped,
+                "total_ieds": len(results)
+            }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error querying IEDs: {str(e)}")

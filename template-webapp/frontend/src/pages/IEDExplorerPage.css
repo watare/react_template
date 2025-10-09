@@ -122,6 +122,21 @@
   overflow: hidden;
 }
 
+/* Hierarchy levels - nested groups */
+.hierarchy-level-2 {
+  margin-left: 15px;
+  margin-top: 5px;
+  border: none;
+  border-left: 2px solid #e0e0e0;
+}
+
+.hierarchy-level-3 {
+  margin-left: 15px;
+  margin-top: 5px;
+  border: none;
+  border-left: 2px solid #d0d0d0;
+}
+
 .group-header {
   display: flex;
   align-items: center;
@@ -136,6 +151,40 @@
 
 .group-header:hover {
   background: #f0f0f0;
+}
+
+/* Different styles for hierarchy levels */
+.substation-header {
+  background: #e8f5e9;
+  font-size: 15px;
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+.substation-header:hover {
+  background: #c8e6c9;
+}
+
+.voltage-level-header {
+  background: #e3f2fd;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1565c0;
+}
+
+.voltage-level-header:hover {
+  background: #bbdefb;
+}
+
+.bay-header {
+  background: #fff3e0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e65100;
+}
+
+.bay-header:hover {
+  background: #ffe0b2;
 }
 
 .group-icon {
