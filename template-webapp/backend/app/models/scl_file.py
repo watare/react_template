@@ -26,6 +26,12 @@ class SCLFile(Base):
     status = Column(String(50), nullable=False, default="uploaded")  # uploaded, converting, converted, failed, validated
     error_message = Column(Text, nullable=True)
 
+    # Progress tracking
+    conversion_stage = Column(String(50), nullable=True)  # parsing, converting, uploading, validating
+    progress_percent = Column(Integer, nullable=True, default=0)  # 0-100
+    stage_message = Column(String(255), nullable=True)  # Human-readable progress message
+    estimated_minutes = Column(Integer, nullable=True)  # Estimated total time
+
     # Validation
     is_validated = Column(Boolean, default=False)
     validation_passed = Column(Boolean, nullable=True)

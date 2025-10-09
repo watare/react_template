@@ -52,6 +52,8 @@ services:
       # Fuseki
       FUSEKI_URL: http://fuseki:3030
       FUSEKI_DATASET: ${FUSEKI_DATASET:-template_dataset}
+      FUSEKI_ADMIN_USER: ${FUSEKI_ADMIN_USER:-admin}
+      FUSEKI_ADMIN_PASSWORD: ${FUSEKI_ADMIN_PASSWORD:-admin}
 
       # JWT
       SECRET_KEY: ${SECRET_KEY:-changeme-super-secret-key-in-production}

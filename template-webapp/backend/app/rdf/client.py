@@ -16,6 +16,8 @@ class RDFClient:
         self.sparql_endpoint = f"{self.base_url}/sparql"
         self.update_endpoint = f"{self.base_url}/update"
         self.data_endpoint = f"{self.base_url}/data"
+        # Fuseki authentication
+        self.auth = (settings.FUSEKI_ADMIN_USER, settings.FUSEKI_ADMIN_PASSWORD)
 
     def _get_endpoints(self, dataset: Optional[str] = None):
         """Get endpoints for a specific dataset"""
@@ -52,6 +54,7 @@ class RDFClient:
                 endpoints["sparql"],
                 data={"query": sparql_query},
                 headers={"Accept": "application/sparql-results+json"},
+                auth=self.auth,
                 timeout=30
             )
             response.raise_for_status()
@@ -80,6 +83,7 @@ class RDFClient:
                 self.update_endpoint,
                 data={"update": sparql_update},
                 headers={"Content-Type": "application/x-www-form-urlencoded"},
+                auth=self.auth,
                 timeout=30
             )
             response.raise_for_status()
@@ -105,6 +109,7 @@ class RDFClient:
                 self.sparql_endpoint,
                 data={"query": sparql_query},
                 headers={"Accept": "application/sparql-results+json"},
+                auth=self.auth,
                 timeout=30
             )
             response.raise_for_status()
@@ -131,6 +136,7 @@ class RDFClient:
                 endpoints["data"],
                 data=turtle_data,
                 headers={"Content-Type": "text/turtle"},
+                auth=self.auth,
                 timeout=30
             )
             response.raise_for_status()
@@ -154,6 +160,7 @@ class RDFClient:
                 f"{self.fuseki_url}/$/datasets",
                 data={"dbName": dataset_name, "dbType": dataset_type},
                 headers={"Content-Type": "application/x-www-form-urlencoded"},
+                auth=self.auth,
                 timeout=30
             )
             response.raise_for_status()
@@ -174,6 +181,7 @@ class RDFClient:
         try:
             response = requests.delete(
                 f"{self.fuseki_url}/$/datasets/{dataset_name}",
+                auth=self.auth,
                 timeout=30
             )
             response.raise_for_status()
@@ -212,6 +220,7 @@ class RDFClient:
                     endpoints["data"],
                     data=f,
                     headers={"Content-Type": content_type},
+                    auth=self.auth,
                     timeout=300  # 5 minutes for large files
                 )
                 response.raise_for_status()

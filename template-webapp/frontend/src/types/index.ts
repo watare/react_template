@@ -41,4 +41,9 @@ export interface SCLFile {
   uploaded_at: string
   converted_at: string | null
   error_message: string | null
+  // Progress tracking
+  conversion_stage?: string | null
+  progress_percent?: number | null
+  stage_message?: string | null
+  estimated_minutes?: number | null
 }

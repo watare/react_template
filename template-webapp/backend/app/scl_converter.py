@@ -150,6 +150,18 @@ class SCLToRDFConverter:
             tree = etree.parse(scl_file)
             root = tree.getroot()
 
+            # Store all namespaces from the original document for round-trip preservation
+            # This ensures xmlns declarations are restored on the root element
+            root_nsmap = root.nsmap
+            if root_nsmap:
+                for prefix, uri in root_nsmap.items():
+                    if prefix is None:
+                        # Default namespace
+                        self.graph.add((IEC.SCL, IEC.defaultNamespace, Literal(uri)))
+                    else:
+                        # Prefixed namespace
+                        self.graph.add((IEC.SCL, IEC[f"namespace_{prefix}"], Literal(uri)))
+
             # Process root element
             self._process_element(root)
 
@@ -169,7 +181,28 @@ class RDFToSCLConverter:
 
     def __init__(self, rdf_graph):
         self.graph = rdf_graph
-        self.nsmap = {None: SCL_NS}  # Default namespace
+        # Restore namespaces from the RDF graph
+        self.nsmap = self._restore_namespaces()
+
+    def _restore_namespaces(self):
+        """Restore namespace map from RDF graph"""
+        nsmap = {}
+
+        # Get default namespace
+        default_ns = self.graph.value(IEC.SCL, IEC.defaultNamespace)
+        if default_ns:
+            nsmap[None] = str(default_ns)
+        else:
+            nsmap[None] = SCL_NS  # Fallback to default
+
+        # Get prefixed namespaces
+        for pred, ns_uri in self.graph.predicate_objects(IEC.SCL):
+            pred_str = str(pred)
+            if pred_str.startswith(str(IEC) + "namespace_"):
+                prefix = pred_str.replace(str(IEC) + "namespace_", "")
+                nsmap[prefix] = str(ns_uri)
+
+        return nsmap
 
     def _deserialize_private_element(self, base64_content):
         """Deserialize base64-encoded XML string back to element"""

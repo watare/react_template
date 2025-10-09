@@ -212,6 +212,34 @@ const SCLFilesPage: React.FC = () => {
                   </span>
                 </div>
 
+                {/* Progress Bar */}
+                {file.status === 'converting' && file.progress_percent !== null && (
+                  <div className="mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-gray-700">
+                        {file.conversion_stage || 'Processing'}
+                      </span>
+                      <span className="text-sm font-medium text-gray-700">
+                        {file.progress_percent}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                      <div
+                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                        style={{ width: `${file.progress_percent}%` }}
+                      ></div>
+                    </div>
+                    {file.stage_message && (
+                      <p className="text-xs text-gray-600">{file.stage_message}</p>
+                    )}
+                    {file.estimated_minutes && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Estimated time: ~{file.estimated_minutes} min
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 {/* Validation Info */}
                 {file.is_validated && (
                   <div className="mb-4">

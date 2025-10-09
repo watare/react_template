@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     # Fuseki
     FUSEKI_URL: str = "http://localhost:3030"
     FUSEKI_DATASET: str = "template_dataset"
+    FUSEKI_ADMIN_USER: str = "admin"
+    FUSEKI_ADMIN_PASSWORD: str = "admin"
 
     # Security
     SECRET_KEY: str

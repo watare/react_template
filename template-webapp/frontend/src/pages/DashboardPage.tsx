@@ -167,7 +167,11 @@ export default function DashboardPage() {
                   alignItems: 'center',
                   cursor: 'pointer'
                 }}
-                onClick={() => {
+                onClick={(e) => {
+                  // Don't navigate if clicking the explore button
+                  if ((e.target as HTMLElement).closest('.explore-button')) {
+                    return;
+                  }
                   if (file.status === 'validated') {
                     navigate(`/scl-files/${file.id}/rdf-schema`)
                   } else {
@@ -183,18 +187,66 @@ export default function DashboardPage() {
                     {formatFileSize(file.file_size)} • {new Date(file.uploaded_at).toLocaleDateString()}
                     {file.triple_count && ` • ${file.triple_count.toLocaleString()} triples`}
                   </div>
+                  {/* Progress indicator for converting files */}
+                  {file.status === 'converting' && file.progress_percent !== null && (
+                    <div style={{ marginTop: '0.5rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                        <div style={{ flex: 1, height: '4px', backgroundColor: '#e0e0e0', borderRadius: '2px', overflow: 'hidden' }}>
+                          <div
+                            style={{
+                              width: `${file.progress_percent}%`,
+                              height: '100%',
+                              backgroundColor: '#2196F3',
+                              transition: 'width 0.3s ease'
+                            }}
+                          ></div>
+                        </div>
+                        <span style={{ fontSize: '0.7rem', color: '#666', minWidth: '35px' }}>
+                          {file.progress_percent}%
+                        </span>
+                      </div>
+                      {file.stage_message && (
+                        <div style={{ fontSize: '0.7rem', color: '#888' }}>
+                          {file.stage_message}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <span
-                  className={getStatusColor(file.status)}
-                  style={{
-                    padding: '0.25rem 0.5rem',
-                    borderRadius: '9999px',
-                    fontSize: '0.75rem',
-                    fontWeight: 500
-                  }}
-                >
-                  {file.status}
-                </span>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  {file.status === 'validated' && (
+                    <button
+                      className="explore-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/ied-explorer?file_id=${file.id}`);
+                      }}
+                      style={{
+                        padding: '0.4rem 0.8rem',
+                        backgroundColor: '#2196F3',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        cursor: 'pointer',
+                        fontWeight: 500
+                      }}
+                    >
+                      🔍 Explore IEDs
+                    </button>
+                  )}
+                  <span
+                    className={getStatusColor(file.status)}
+                    style={{
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.75rem',
+                      fontWeight: 500
+                    }}
+                  >
+                    {file.status}
+                  </span>
+                </div>
               </div>
             ))}
           </div>

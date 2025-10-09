@@ -5,6 +5,7 @@ import DashboardPage from './pages/DashboardPage'
 import NodesPage from './pages/NodesPage'
 import SCLFilesPage from './pages/SCLFilesPage'
 import RDFSchemaPage from './pages/RDFSchemaPage'
+import IEDExplorerPage from './pages/IEDExplorerPage'
 import Layout from './components/Layout'
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path="nodes" element={<NodesPage />} />
         <Route path="scl-files" element={<SCLFilesPage />} />
         <Route path="scl-files/:fileId/rdf-schema" element={<RDFSchemaPage />} />
+        <Route path="ied-explorer" element={<IEDExplorerPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
